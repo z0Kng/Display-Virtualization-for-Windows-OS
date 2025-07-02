@@ -824,15 +824,15 @@ void VioGpuAdapterLite::AddEdidModes(UINT32 screen_num)
 	TRACING();
 	if (parse_edid_data(GetEdidData(screen_num), &m_screen[screen_num].mode_list) != 0) {
 		for (unsigned int i = 0; i < QEMU_MODELIST_SIZE; i++) {
-			m_screen[screen_num].gpu_disp_mode_ext[i].XResolution = (USHORT)qemu_modelist[i].x;
-			m_screen[screen_num].gpu_disp_mode_ext[i].YResolution = (USHORT)qemu_modelist[i].y;
+			m_screen[screen_num].gpu_disp_mode_ext[i].XResolution = max((USHORT)qemu_modelist[i].x, MIN_WIDTH_SIZE);
+			m_screen[screen_num].gpu_disp_mode_ext[i].YResolution = max((USHORT)qemu_modelist[i].y, MIN_HEIGHT_SIZE);
 			m_screen[screen_num].gpu_disp_mode_ext[i].refresh = qemu_modelist[i].rr;
 		}
 	}
 	else {
 		for (unsigned int i = 0; i < m_screen[screen_num].mode_list.modelist_size; i++) {
-			m_screen[screen_num].gpu_disp_mode_ext[i].XResolution = (USHORT)m_screen[screen_num].mode_list.modelist[i].width;
-			m_screen[screen_num].gpu_disp_mode_ext[i].YResolution = (USHORT)m_screen[screen_num].mode_list.modelist[i].height;
+			m_screen[screen_num].gpu_disp_mode_ext[i].XResolution = max((USHORT)m_screen[screen_num].mode_list.modelist[i].width, MIN_WIDTH_SIZE);
+			m_screen[screen_num].gpu_disp_mode_ext[i].YResolution = max((USHORT)m_screen[screen_num].mode_list.modelist[i].height, MIN_HEIGHT_SIZE);
 			m_screen[screen_num].gpu_disp_mode_ext[i].refresh = m_screen[screen_num].mode_list.modelist[i].refresh_rate;
 		}
 	}
@@ -889,8 +889,8 @@ NTSTATUS VioGpuAdapterLite::GetModeList(DXGK_DISPLAY_INFORMATION* pDispInfo)
 		m_screen[i].Reset();
 
 		ProcessEdid(i);
-		while ((m_screen[i].gpu_disp_mode_ext[ModeCount].XResolution >= MIN_WIDTH_SIZE) &&
-			(m_screen[i].gpu_disp_mode_ext[ModeCount].YResolution >= MIN_HEIGHT_SIZE)) ModeCount++;
+		while ((m_screen[i].gpu_disp_mode_ext[ModeCount].XResolution > 0) &&
+			(m_screen[i].gpu_disp_mode_ext[ModeCount].YResolution > 0)) ModeCount++;
 
 		ModeCount += 2;
 		m_screen[i].m_ModeInfo = new (PagedPool) VIDEO_MODE_INFORMATION[ModeCount];

@@ -732,6 +732,18 @@ void SwapChainProcessor::RunCore()
 		return;
 	}
 
+	if (IDD_IS_FUNCTION_AVAILABLE(IddCxSetRealtimeGPUPriority))
+	{	
+		IDARG_IN_SETREALTIMEGPUPRIORITY SetPriority = {};
+		SetPriority.pDevice = DxgiDevice.Get();
+		hr = IddCxSetRealtimeGPUPriority(m_hSwapChain, &SetPriority);
+		if (FAILED(hr)) {
+			ERR("IddCxSetRealtimeGPUPriority failed");
+		} else {
+			DBGPRINT("IddCxSetRealtimeGPUPriority Successful\n");
+		}
+	}
+
 	IDARG_IN_SWAPCHAINSETDEVICE SetDevice = {};
 	SetDevice.pDevice = DxgiDevice.Get();
 
